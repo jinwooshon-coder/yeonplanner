@@ -1470,7 +1470,7 @@ body.creative-fullscreen .creative-frame-card{border:0;border-radius:0;box-shado
 
       <!-- 오늘의 습관 체크 완료 상태 -->
       <div id="habitTodayStatus" style="display:none;text-align:center;padding:14px;background:var(--accent-lighter);border-radius:var(--radius-md);margin-bottom:10px;">
-        <div style="font-size:24px;margin-bottom:4px;">🎉</div>
+        <div style="margin-bottom:8px;display:flex;justify-content:center;"><svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;"><polyline points="22 2 11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
         <div style="font-size:13px;font-weight:700;color:var(--accent-dark);">오늘의 습관을 모두 완료했어요!</div>
         <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">내일도 이 약속을 지켜주세요</div>
       </div>
@@ -1487,6 +1487,24 @@ body.creative-fullscreen .creative-frame-card{border:0;border-radius:0;box-shado
           <span style="font-size:9px;color:var(--text-muted);display:flex;align-items:center;gap:3px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--rose);display:inline-block;opacity:0.4;"></span>미달성</span>
           <span style="font-size:9px;color:var(--text-muted);display:flex;align-items:center;gap:3px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--divider);display:inline-block;"></span>미래</span>
           <span id="habitStreakInfo" style="font-size:9px;font-weight:700;color:var(--accent);margin-left:auto;"></span>
+        </div>
+      </div>
+
+      <!-- 100일 달성 그리드 -->
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:6px;">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            100일 달성 현황
+          </div>
+          <div id="habit100ProgressLabel" style="font-size:12px;font-weight:800;color:var(--accent);background:var(--accent-lighter);padding:3px 10px;border-radius:var(--radius-full);">0 / 100일</div>
+        </div>
+        <div id="habit100Grid" style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px;border:1px solid var(--border);"></div>
+        <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
+          <span style="font-size:9px;color:var(--text-muted);display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:2px;background:var(--accent);display:inline-block;"></span>모두 달성</span>
+          <span style="font-size:9px;color:var(--text-muted);display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:2px;background:rgba(196,149,106,0.3);display:inline-block;"></span>미달성</span>
+          <span style="font-size:9px;color:var(--text-muted);display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:2px;background:var(--divider);display:inline-block;"></span>예정</span>
+          <span style="font-size:9px;color:var(--text-muted);display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:2px;background:var(--warm-lighter);border:1.5px solid var(--warm);display:inline-block;"></span>오늘</span>
         </div>
       </div>
 
@@ -5423,13 +5441,111 @@ function openAcademyAdmin() {
   }
 }
 
+
+// ===== 100일 달성 전체 그리드 =====
+function renderHabit100Grid() {
+  const cont = document.getElementById('habit100Grid');
+  const progLabel = document.getElementById('habit100ProgressLabel');
+  if (!cont) return;
+
+  const today = new Date().toISOString().slice(0,10);
+  const startDateStr = localStorage.getItem('yp_habit_start_date') || today;
+  const habits = getHabitList();
+  let allChecks = {};
+  try { allChecks = JSON.parse(localStorage.getItem('yp_habit_checks') || '{}'); } catch(e) {}
+
+  const startDate = new Date(startDateStr);
+  const todayDate = new Date(today);
+  const startWeekday = startDate.getDay(); // 0=일,1=월,...,6=토
+  const DAYS = ['일','월','화','수','목','금','토'];
+
+  // 달성 카운트
+  let achievedDays = 0;
+
+  let html = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;">';
+
+  // 요일 헤더
+  DAYS.forEach((d, i) => {
+    const c = i === 0 ? '#E07070' : i === 6 ? '#7090C0' : 'var(--text-muted)';
+    html += `<div style="text-align:center;font-size:9px;font-weight:700;color:${c};padding:3px 0;border-bottom:1px solid var(--border);">${d}</div>`;
+  });
+
+  // 시작 요일 앞 빈칸
+  for (let p = 0; p < startWeekday; p++) {
+    html += '<div style="aspect-ratio:1;"></div>';
+  }
+
+  // 100일 셀
+  for (let day = 1; day <= 100; day++) {
+    const cellDate = new Date(startDate);
+    cellDate.setDate(startDate.getDate() + day - 1);
+    const dateStr = cellDate.toISOString().slice(0, 10);
+    const isFuture = cellDate > todayDate;
+    const isToday = dateStr === today;
+    const checks = allChecks[dateStr] || {};
+    const allDone = habits.length > 0 && habits.every(h => checks[h.id]);
+    if (allDone && !isFuture) achievedDays++;
+
+    let bg, color, border = 'transparent', fontW = '600';
+    if (isToday) {
+      bg = 'var(--warm-lighter)'; color = 'var(--warm-dark)'; border = 'var(--warm)'; fontW = '800';
+    } else if (isFuture) {
+      bg = 'var(--divider)'; color = 'var(--text-muted)'; fontW = '500';
+    } else if (allDone) {
+      bg = 'var(--accent)'; color = 'white';
+    } else {
+      bg = 'rgba(196,149,106,0.18)'; color = 'var(--text-muted)';
+    }
+
+    // 10일 단위 강조
+    const isMilestone = day % 10 === 0;
+    const extraStyle = isMilestone && !isFuture ? 'box-shadow:0 0 0 1.5px var(--warm);' : '';
+
+    html += `<div style="aspect-ratio:1;background:${bg};border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:${fontW};color:${color};border:1.5px solid ${border};${extraStyle}position:relative;cursor:pointer;transition:transform 0.1s;" onclick="showHabitDayDetail('${dateStr}',${day})" title="${dateStr} (${day}일째)">${day}</div>`;
+  }
+
+  html += '</div>';
+  cont.innerHTML = html;
+
+  if (progLabel) progLabel.textContent = `${achievedDays} / 100일`;
+}
+
+function showHabitDayDetail(dateStr, dayNum) {
+  const habits = getHabitList();
+  let allChecks = {};
+  try { allChecks = JSON.parse(localStorage.getItem('yp_habit_checks') || '{}'); } catch(e) {}
+  const checks = allChecks[dateStr] || {};
+  const lines = habits.map(h => {
+    const done = checks[h.id];
+    return `${done ? '✓' : '○'} ${h.name}`;
+  }).join('\n');
+  const today = new Date().toISOString().slice(0,10);
+  const isFuture = dateStr > today;
+  if (isFuture) { alert(`${dayNum}일째 (${dateStr})\n\n아직 오지 않은 날입니다.`); return; }
+  alert(`${dayNum}일째 (${dateStr})\n\n${lines || '습관이 없습니다.'}`);
+}
+
 // ===== 100일 습관 체크리스트 시스템 =====
-const defaultHabits = [
-  { id: 'h1', name: '아침 명상 10분', icon: '🧘', color: 'var(--accent)' },
-  { id: 'h2', name: '영어 단어 30개', icon: '📖', color: 'var(--warm)' }
+const _HI = (p) => `<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;">${p}</svg>`;
+const habitIcons = [
+  _HI('<circle cx="12" cy="5" r="2"/><path d="M12 7v5"/><path d="M7 10c0 2.8 2.2 5 5 5s5-2.2 5-5"/><path d="M5 20c1.5-2 3.5-3 7-3s5.5 1 7 3"/>'),
+  _HI('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'),
+  _HI('<circle cx="12" cy="5" r="2"/><polyline points="6 12 12 8 18 12"/><polyline points="8 20 12 14 16 20"/>'),
+  _HI('<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>'),
+  _HI('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>'),
+  _HI('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>'),
+  _HI('<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'),
+  _HI('<path d="M12 22V12"/><path d="M12 12C12 7 7 5 2 5c0 5 3 9 10 7z"/><path d="M12 12c0-5 5-7 10-7 0 5-3 9-10 7z"/>'),
+  _HI('<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125C12.98 18.78 12.843 18.4 12.843 18a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>'),
+  _HI('<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>'),
+  _HI('<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>'),
+  _HI('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'),
 ];
 const habitColors = ['var(--accent)','var(--warm)','var(--rose)','#8EB8D6','#B8A0C8','#C4A882','#92B89E'];
-const habitIcons = ['🧘','📖','🏃','✍️','🎵','📚','💪','🌱','🎨','🧹','💧','🍎'];
+const defaultHabits = [
+  { id: 'h1', name: '아침 명상 10분', icon: habitIcons[0], color: 'var(--accent)' },
+  { id: 'h2', name: '영어 단어 30개', icon: habitIcons[1], color: 'var(--warm)' }
+];
 
 function getHabitList() {
   let list = [];
@@ -5438,6 +5554,16 @@ function getHabitList() {
     list = defaultHabits.map(h => ({...h}));
     localStorage.setItem('yp_habit_list', JSON.stringify(list));
   }
+  // 이모지 아이콘 → SVG 마이그레이션
+  let migrated = false;
+  list = list.map((h, i) => {
+    if (!h.icon || !h.icon.startsWith('<svg')) {
+      h.icon = habitIcons[i % habitIcons.length];
+      migrated = true;
+    }
+    return h;
+  });
+  if (migrated) localStorage.setItem('yp_habit_list', JSON.stringify(list));
   return list;
 }
 
@@ -5514,7 +5640,7 @@ function renderHabitChecklist() {
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:3px;">
           <span style="font-size:9px;color:var(--text-muted);">${pct}% 달성 (${streakCount}/100일)</span>
-          <span style="font-size:9px;color:var(--text-muted);">${done?'✅ 오늘 완료':'⬜ 미완료'}</span>
+          <span style="font-size:9px;color:var(--text-muted);">${done?'완료':'미완료'}</span>
         </div>
       </div>
       <button class="habit-check-btn${done?' checked':''}" onclick="toggleHabitCheck('${h.id}',this)" style="${done?'background:var(--accent);border-color:var(--accent);color:white;':''}">
@@ -5533,6 +5659,9 @@ function renderHabitChecklist() {
 
   // 전문가 메시지 미리보기
   renderExpertMessage(dayNum, allDone, habits.length);
+
+  // 100일 전체 그리드 업데이트
+  renderHabit100Grid();
 }
 
 function toggleHabitCheck(habitId, btn) {
