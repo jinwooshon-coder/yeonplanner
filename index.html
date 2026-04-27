@@ -756,12 +756,12 @@ html,body{font-family:var(--font-kr);background:var(--bg-primary);color:var(--te
 
 /* ===== THEME TOGGLE ===== */
 .theme-toggle{width:46px;height:26px;border-radius:13px;background:var(--divider);position:relative;cursor:pointer;transition:background var(--transition-normal);}
-.theme-toggle.dark{background:var(--accent);}
+.theme-toggle.dark,.theme-toggle.active{background:var(--accent);}
 .theme-toggle-knob{width:22px;height:22px;border-radius:var(--radius-full);background:white;position:absolute;top:2px;left:2px;transition:transform var(--transition-normal);box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;}
 .theme-toggle-knob svg{width:12px;height:12px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:all var(--transition-normal);}
 .theme-toggle .theme-toggle-knob svg{stroke:var(--warm);}
-.theme-toggle.dark .theme-toggle-knob{transform:translateX(20px);}
-.theme-toggle.dark .theme-toggle-knob svg{stroke:var(--accent);}
+.theme-toggle.dark .theme-toggle-knob,.theme-toggle.active .theme-toggle-knob{transform:translateX(20px);}
+.theme-toggle.dark .theme-toggle-knob svg,.theme-toggle.active .theme-toggle-knob svg{stroke:var(--accent);}
 
 /* ===== CALENDAR PAGE ===== */
 .calendar-widget{background:var(--bg-primary);border:1.5px solid var(--text-muted);border-radius:var(--radius-lg);padding:20px;margin-bottom:24px;box-shadow:var(--shadow-md);}
@@ -840,7 +840,7 @@ html,body{font-family:var(--font-kr);background:var(--bg-primary);color:var(--te
 .guide-text{font-size:13px;line-height:1.8;color:var(--text-secondary);font-family:var(--font-kr);}
 .guide-text strong{color:var(--text-primary);font-weight:700;}
 .guide-tip{background:var(--accent-lighter);border-radius:var(--radius-md);padding:12px 14px;margin-top:12px;font-size:12px;line-height:1.7;color:var(--accent-dark);font-family:var(--font-kr);}
-.guide-tip::before{content:'💡 ';font-size:13px;}
+.guide-tip::before{content:'';}
 .guide-quote{background:var(--bg-tertiary);border-left:3px solid var(--warm);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:10px 14px;margin-top:10px;font-size:12px;font-style:italic;line-height:1.7;color:var(--text-secondary);font-family:var(--font-kr);}
 
 /* ===== PWA INSTALL BANNER ===== */
@@ -1873,21 +1873,24 @@ body.creative-fullscreen .creative-frame-card{border:0;border-radius:0;box-shado
       <div class="review-card-header">
         <div class="review-card-title">따라쓰기 연습장</div>
         <div style="display:flex;gap:6px;">
-          <button onclick="printHwPractice()" style="padding:4px 12px;border-radius:var(--radius-full);border:1px solid var(--warm);background:transparent;color:var(--warm);font-size:10px;font-weight:600;cursor:pointer;">🖨️ 인쇄</button>
+          <button onclick="printHwPractice()" style="padding:4px 12px;border-radius:var(--radius-full);border:1px solid var(--warm);background:transparent;color:var(--warm);font-size:10px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;"><svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> 인쇄</button>
           <button onclick="clearHwCanvas()" style="padding:4px 12px;border-radius:var(--radius-full);border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:10px;font-weight:600;cursor:pointer;">지우기</button>
           <button onclick="saveHwCanvas()" style="padding:4px 12px;border-radius:var(--radius-full);border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:10px;font-weight:600;cursor:pointer;">저장</button>
         </div>
       </div>
 
-      <!-- 글자별 격자 연습 영역 -->
-      <div id="hwGridArea" style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:4px;"></div>
+      <!-- 따라쓰기 안내 -->
+      <div style="margin-top:10px;background:var(--accent-lighter);border-radius:var(--radius-sm);padding:10px 14px;display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        <span style="font-size:12px;color:var(--accent);font-weight:600;">아래 캔버스에 손으로 직접 따라 써보세요</span>
+      </div>
 
       <!-- 자유 따라쓰기 캔버스 -->
       <div style="margin-top:14px;">
         <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:6px;">자유 따라쓰기</div>
         <div style="position:relative;">
           <div id="hwGuideText" style="position:absolute;top:12px;left:12px;right:12px;font-size:20px;line-height:2.2;color:var(--text-muted);opacity:0.12;font-weight:700;font-family:var(--font-kr);pointer-events:none;letter-spacing:2px;z-index:1;"></div>
-          <canvas id="hwCanvas" style="width:100%;height:320px;border-radius:var(--radius-md);background:var(--bg-primary);border:1.5px solid var(--border);touch-action:none;position:relative;z-index:2;"></canvas>
+          <canvas id="hwCanvas" style="width:100%;height:400px;border-radius:var(--radius-md);background:var(--bg-primary);border:1.5px solid var(--border);touch-action:none;position:relative;z-index:2;"></canvas>
         </div>
       </div>
 
@@ -1911,9 +1914,9 @@ body.creative-fullscreen .creative-frame-card{border:0;border-radius:0;box-shado
     <div class="today-art-card">
       <div class="review-card-title" style="margin-bottom:10px;">이번 주 수행 기록</div>
       <div style="display:flex;gap:6px;justify-content:space-between;">
-        <div style="flex:1;text-align:center;padding:10px 4px;border-radius:var(--radius-sm);background:var(--accent-lighter);"><div style="font-size:18px;">✓</div><div style="font-size:9px;color:var(--accent);font-weight:700;margin-top:2px;">월</div></div>
-        <div style="flex:1;text-align:center;padding:10px 4px;border-radius:var(--radius-sm);background:var(--accent-lighter);"><div style="font-size:18px;">✓</div><div style="font-size:9px;color:var(--accent);font-weight:700;margin-top:2px;">화</div></div>
-        <div style="flex:1;text-align:center;padding:10px 4px;border-radius:var(--radius-sm);background:var(--warm-lighter);border:2px solid var(--warm);"><div style="font-size:18px;">📝</div><div style="font-size:9px;color:var(--warm-dark);font-weight:700;margin-top:2px;">오늘</div></div>
+        <div style="flex:1;text-align:center;padding:10px 4px;border-radius:var(--radius-sm);background:var(--accent-lighter);"><div style="display:flex;align-items:center;justify-content:center;height:28px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:9px;color:var(--accent);font-weight:700;margin-top:2px;">월</div></div>
+        <div style="flex:1;text-align:center;padding:10px 4px;border-radius:var(--radius-sm);background:var(--accent-lighter);"><div style="display:flex;align-items:center;justify-content:center;height:28px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:9px;color:var(--accent);font-weight:700;margin-top:2px;">화</div></div>
+        <div style="flex:1;text-align:center;padding:10px 4px;border-radius:var(--radius-sm);background:var(--warm-lighter);border:2px solid var(--warm);"><div style="display:flex;align-items:center;justify-content:center;height:28px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--warm-dark);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></div><div style="font-size:9px;color:var(--warm-dark);font-weight:700;margin-top:2px;">오늘</div></div>
         <div style="flex:1;text-align:center;padding:10px 4px;border-radius:var(--radius-sm);background:var(--divider);"><div style="font-size:18px;opacity:0.3;">·</div><div style="font-size:9px;color:var(--text-muted);font-weight:600;margin-top:2px;">목</div></div>
         <div style="flex:1;text-align:center;padding:10px 4px;border-radius:var(--radius-sm);background:var(--divider);"><div style="font-size:18px;opacity:0.3;">·</div><div style="font-size:9px;color:var(--text-muted);font-weight:600;margin-top:2px;">금</div></div>
         <div style="flex:1;text-align:center;padding:10px 4px;border-radius:var(--radius-sm);background:var(--divider);"><div style="font-size:18px;opacity:0.3;">·</div><div style="font-size:9px;color:var(--text-muted);font-weight:600;margin-top:2px;">토</div></div>
@@ -3133,11 +3136,22 @@ body.creative-fullscreen .creative-frame-card{border:0;border-radius:0;box-shado
       </div>
       <input type="file" id="todayArtUpload" accept="image/*" style="display:none;" onchange="uploadTodayArt(this)">
 
-      <!-- 기본 업로드 영역 -->
-      <div class="today-art-frame" id="todayArtFrame" onclick="document.getElementById('todayArtUpload').click()">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        <span>사진을 업로드하고 나만의 그림을 만드세요</span>
-        <span style="font-size:10px;color:var(--text-muted);">클릭하여 업로드 또는 Ctrl+V로 붙여넣기</span>
+      <!-- 기본 업로드/시작 영역 -->
+      <div id="todayArtFrame">
+        <div onclick="document.getElementById('todayArtUpload').click()" style="border:2px dashed var(--border);border-radius:var(--radius-md);padding:24px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <svg viewBox="0 0 24 24" style="width:28px;height:28px;stroke:var(--text-muted);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span style="font-size:13px;color:var(--text-secondary);font-weight:600;">사진 업로드</span>
+          <span style="font-size:10px;color:var(--text-muted);">클릭하거나 Ctrl+V로 붙여넣기</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin:10px 0;">
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+          <span style="font-size:11px;color:var(--text-muted);font-weight:600;">또는</span>
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+        <button onclick="startBlankCanvas()" style="width:100%;padding:14px;border-radius:var(--radius-md);border:1.5px solid var(--warm);background:var(--warm-lighter);color:var(--warm-dark);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-kr);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;" onmouseover="this.style.background='var(--warm-light)'" onmouseout="this.style.background='var(--warm-lighter)'">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+          빈 캔버스로 바로 그리기
+        </button>
       </div>
 
       <!-- 편집 모드 패널 (숨김) -->
@@ -3753,6 +3767,33 @@ body.creative-fullscreen .creative-frame-card{border:0;border-radius:0;box-shado
           <div class="theme-toggle" onclick="toggleTheme()" id="profileThemeToggle">
             <div class="theme-toggle-knob">
               <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="setting-item" style="flex-direction:column;align-items:flex-start;gap:12px;padding:14px;">
+          <div style="display:flex;align-items:center;gap:14px;width:100%;">
+            <div class="setting-icon-wrap gray">
+              <svg stroke="var(--text-secondary)" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+            </div>
+            <span class="setting-label">글씨 크기</span>
+            <span id="fontSizeLevelLabel" style="margin-left:auto;font-size:12px;color:var(--accent);font-weight:700;">보통 (5)</span>
+          </div>
+          <div style="width:100%;padding:0 4px;">
+            <div style="display:flex;gap:4px;align-items:flex-end;justify-content:space-between;">
+              <span style="font-size:11px;color:var(--text-muted);">가</span>
+              <div id="fontSizeSteps" style="display:flex;gap:5px;flex:1;justify-content:center;">
+                <button onclick="setFontSizeLevel(1)" id="fsBtn1" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:9px;font-weight:700;color:var(--text-secondary);transition:all 0.15s;display:flex;align-items:center;justify-content:center;padding:0;" title="크기 1">1</button>
+                <button onclick="setFontSizeLevel(2)" id="fsBtn2" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:10px;font-weight:700;color:var(--text-secondary);transition:all 0.15s;display:flex;align-items:center;justify-content:center;padding:0;" title="크기 2">2</button>
+                <button onclick="setFontSizeLevel(3)" id="fsBtn3" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:11px;font-weight:700;color:var(--text-secondary);transition:all 0.15s;display:flex;align-items:center;justify-content:center;padding:0;" title="크기 3">3</button>
+                <button onclick="setFontSizeLevel(4)" id="fsBtn4" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:12px;font-weight:700;color:var(--text-secondary);transition:all 0.15s;display:flex;align-items:center;justify-content:center;padding:0;" title="크기 4">4</button>
+                <button onclick="setFontSizeLevel(5)" id="fsBtn5" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:13px;font-weight:700;color:var(--text-secondary);transition:all 0.15s;display:flex;align-items:center;justify-content:center;padding:0;" title="크기 5">5</button>
+                <button onclick="setFontSizeLevel(6)" id="fsBtn6" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:14px;font-weight:700;color:var(--text-secondary);transition:all 0.15s;display:flex;align-items:center;justify-content:center;padding:0;" title="크기 6">6</button>
+                <button onclick="setFontSizeLevel(7)" id="fsBtn7" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:15px;font-weight:700;color:var(--text-secondary);transition:all 0.15s;display:flex;align-items:center;justify-content:center;padding:0;" title="크기 7">7</button>
+                <button onclick="setFontSizeLevel(8)" id="fsBtn8" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:16px;font-weight:700;color:var(--text-secondary);transition:all 0.15s;display:flex;align-items:center;justify-content:center;padding:0;" title="크기 8">8</button>
+                <button onclick="setFontSizeLevel(9)" id="fsBtn9" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:17px;font-weight:700;color:var(--text-secondary);transition:all 0.15s;display:flex;align-items:center;justify-content:center;padding:0;" title="크기 9">9</button>
+                <button onclick="setFontSizeLevel(10)" id="fsBtn10" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:18px;font-weight:700;color:var(--text-secondary);transition:all 0.15s;display:flex;align-items:center;justify-content:center;padding:0;" title="크기 10">10</button>
+              </div>
+              <span style="font-size:18px;color:var(--text-muted);">가</span>
             </div>
           </div>
         </div>
@@ -4660,7 +4701,7 @@ function updateQuickLinks(pageName) {
 // FAB Level 2 categories
 const fabCategories = {
   record: {
-    title: '📝 기록하기',
+    title: '기록하기',
     color: 'var(--accent)',
     items: [
       { label: '오늘기록', page: 'study', icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', color: 'green' },
@@ -4672,7 +4713,7 @@ const fabCategories = {
     ]
   },
   learn: {
-    title: '📚 학습관리',
+    title: '학습관리',
     color: 'var(--warm)',
     items: [
       { label: '복습하기', page: 'review', icon: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>', color: 'warm' },
@@ -4682,7 +4723,7 @@ const fabCategories = {
     ]
   },
   life: {
-    title: '💗 마음관리',
+    title: '마음관리',
     color: 'var(--rose)',
     items: [
       { label: '글씨연습', page: 'handwriting', icon: '<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/><line x1="15" y1="5" x2="19" y2="9"/>', color: 'warm' },
@@ -4694,7 +4735,7 @@ const fabCategories = {
     ]
   },
   tools: {
-    title: '⚙️ 도구·설정',
+    title: '도구·설정',
     color: '#4285F4',
     items: [
       { label: '일정관리', page: 'plan', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>', color: 'blue' },
@@ -7472,6 +7513,25 @@ const artEditor = {
 const artDrawPen = { color: '#3C3C3C', size: 3, eraser: false };
 let artDrawing = false;
 
+
+function startBlankCanvas() {
+  // 빈 캔버스로 시작 (800x600 흰 배경)
+  const tmpCanvas = document.createElement('canvas');
+  tmpCanvas.width = 800;
+  tmpCanvas.height = 600;
+  const tmpCtx = tmpCanvas.getContext('2d');
+  tmpCtx.fillStyle = '#FFFFFF';
+  tmpCtx.fillRect(0, 0, 800, 600);
+  loadImageToEditor(tmpCanvas.toDataURL());
+  // 그리기 모드 자동 활성화
+  setTimeout(() => {
+    const drawModeBtn = document.getElementById('artDrawModeBtn');
+    if (drawModeBtn && !document.getElementById('artDrawCanvas').style.display !== 'none') {
+      toggleArtDrawMode();
+    }
+  }, 200);
+}
+
 function loadImageToEditor(dataUrl) {
   const img = new Image();
   img.onload = function() {
@@ -8286,6 +8346,45 @@ function submitBoardPost() {
 }
 
 // ===== DIARY CONFIGURATION =====
+
+// ===== 글씨 크기 조절 (10단계) =====
+const FONT_SIZE_LEVELS = [0.78, 0.83, 0.88, 0.93, 1.00, 1.07, 1.14, 1.21, 1.28, 1.36];
+const FONT_SIZE_NAMES = ['매우 작게 (1)','작게 (2)','조금 작게 (3)','약간 작게 (4)','보통 (5)','약간 크게 (6)','조금 크게 (7)','크게 (8)','매우 크게 (9)','최대 (10)'];
+
+function setFontSizeLevel(level) {
+  const zoom = FONT_SIZE_LEVELS[level - 1];
+  document.querySelector('.app').style.zoom = zoom;
+  localStorage.setItem('yp_font_size_level', level);
+  updateFontSizeUI(level);
+}
+
+function updateFontSizeUI(level) {
+  const label = document.getElementById('fontSizeLevelLabel');
+  if (label) label.textContent = FONT_SIZE_NAMES[level - 1];
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.getElementById('fsBtn' + i);
+    if (!btn) continue;
+    if (i === level) {
+      btn.style.background = 'var(--accent)';
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.color = 'white';
+      btn.style.transform = 'scale(1.15)';
+    } else {
+      btn.style.background = 'var(--bg-secondary)';
+      btn.style.borderColor = 'var(--border)';
+      btn.style.color = 'var(--text-secondary)';
+      btn.style.transform = 'scale(1)';
+    }
+  }
+}
+
+function loadFontSizeLevel() {
+  const saved = parseInt(localStorage.getItem('yp_font_size_level') || '5');
+  const zoom = FONT_SIZE_LEVELS[saved - 1];
+  document.querySelector('.app').style.zoom = zoom;
+  updateFontSizeUI(saved);
+}
+
 function togglePageConfig(toggleEl, pageId) {
   const isActive = toggleEl.classList.toggle('active');
   // Save config
@@ -8321,6 +8420,7 @@ function applyPageConfig() {
 
 // Load saved config on startup
 document.addEventListener('DOMContentLoaded', function() {
+  loadFontSizeLevel();
   applyPageConfig();
 
   // Restore toggle states in profile
