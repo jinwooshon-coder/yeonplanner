@@ -7814,7 +7814,7 @@ function toggleRuler(){
   _rulerOn=!_rulerOn;
   $('cWrap').classList.toggle('ruler-active',_rulerOn);
   $('bRuler').classList.toggle('on',_rulerOn);
-  if(_rulerOn){drawRulers();toast('📏 눈금자 켜짐 (cm 단위 · 인쇄 정확)')
+  if(_rulerOn){drawRulers();toast('📏 눈금자 켜짐 (cm · 인쇄 정확)');}
   else toast('눈금자 꺼짐');
   localStorage.setItem('yeon_ruler',_rulerOn?'1':'');
 }
